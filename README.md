@@ -35,9 +35,28 @@ Job Scraper → AI Scoring → Filtering → Cover Letter Generation → Google 
 
 ## Architecture
 
-![Workflow](screenshots/workflow.png)
+This automation runs on a schedule and:
+1) Scrapes job listings (Apify)
+2) Scores each job against my resume using an LLM (OpenRouter)
+3) Filters jobs based on a minimum score threshold
+4) Generates a tailored cover letter for strong matches
+5) Logs results to Google Sheets
+6) Sends an email notification
 
----
+mermaid
+flowchart TD
+  A[Schedule Trigger] --> B[Apify Run Actor]
+  B --> C[Get Dataset Items]
+  C --> D[Limit Jobs]
+  D --> E[HTTP: OpenRouter Job Scoring]
+  E --> F[Code: Parse Scoring JSON]
+  F --> G{IF total_score >= threshold}
+  G -- False --> H[End / Ignore Job]
+  G -- True --> I[HTTP: OpenRouter Cover Letter]
+  I --> J[Code: Extract Cover Letter Text]
+  J --> K[Edit Fields (Set)]
+  K --> L[Google Sheets: Append Row]
+  L --> M[Email: Notify Me]
 
 ## Example Output
 
